@@ -10,12 +10,15 @@ import { useAuth } from "../../contexts/AuthContext";
 const F = "'Plus Jakarta Sans', sans-serif";
 const FB = "'Barlow Condensed', sans-serif";
 
+const isAdminDomain = typeof window !== 'undefined' && (window.location.hostname.startsWith('admin.') || import.meta.env.VITE_APP_MODE === 'admin');
+const prefix = isAdminDomain ? '' : '/quan-ly';
+
 const baseNavItems = [
-  { path: "/quan-ly/dashboard", icon: LayoutDashboard, label: "Tổng quan" },
-  { path: "/quan-ly/leads", icon: Users, label: "Lead khách hàng", minRole: 'admin' as const },
-  { path: "/quan-ly/blog", icon: FileText, label: "Bài viết Blog" },
-  { path: "/quan-ly/khoa-hoc", icon: GraduationCap, label: "Khóa học" },
-  { path: "/quan-ly/nguoi-dung", icon: Shield, label: "Người dùng", minRole: 'super_admin' as const },
+  { path: `${prefix}/dashboard`, icon: LayoutDashboard, label: "Tổng quan" },
+  { path: `${prefix}/leads`, icon: Users, label: "Lead khách hàng", minRole: 'admin' as const },
+  { path: `${prefix}/blog`, icon: FileText, label: "Bài viết Blog" },
+  { path: `${prefix}/khoa-hoc`, icon: GraduationCap, label: "Khóa học" },
+  { path: `${prefix}/nguoi-dung`, icon: Shield, label: "Người dùng", minRole: 'super_admin' as const },
 ];
 
 export default function AdminLayout() {
@@ -42,13 +45,15 @@ export default function AdminLayout() {
     );
   }
 
+  const loginPath = prefix || "/quan-ly";
+
   if (!isAuthenticated) {
-    return <Navigate to="/quan-ly" replace />;
+    return <Navigate to={loginPath} replace />;
   }
 
   const handleLogout = () => {
     logout();
-    navigate("/quan-ly");
+    navigate(loginPath);
   };
 
   const Sidebar = ({ mobile = false }: { mobile?: boolean }) => (

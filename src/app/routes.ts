@@ -46,13 +46,14 @@ function AdminRootRedirect() {
       import.meta.env.VITE_APP_MODE === "admin";
 
     if (isAdminHost) {
-      return React.createElement(Navigate, { to: "/quan-ly/dashboard", replace: true });
+      return React.createElement(Navigate, { to: "/dashboard", replace: true });
     }
   }
   return React.createElement(Home);
 }
 
 export const router = createBrowserRouter([
+  // Public Site Routes (Client Domain)
   {
     path: "/",
     Component: MainLayout,
@@ -66,6 +67,27 @@ export const router = createBrowserRouter([
       { path: "gioi-thieu", Component: AboutPage },
     ],
   },
+  // Clean Admin Domain Root Layout & Subpaths
+  {
+    path: "/",
+    Component: function CleanAdminWrapper() {
+      const isAdminHost = typeof window !== "undefined" && (window.location.hostname.startsWith("admin.") || import.meta.env.VITE_APP_MODE === "admin");
+      if (!isAdminHost) return null;
+      return React.createElement(AdminLayout);
+    },
+    children: [
+      { path: "dashboard", Component: AdminDashboard },
+      { path: "leads", Component: AdminLeads },
+      { path: "admin-blog", Component: AdminBlog },
+      { path: "admin-blog/create", Component: AdminBlogEditor },
+      { path: "admin-blog/edit/:id", Component: AdminBlogEditor },
+      { path: "admin-khoa-hoc", Component: AdminCourses },
+      { path: "admin-khoa-hoc/create", Component: AdminCourseEditor },
+      { path: "admin-khoa-hoc/edit/:id", Component: AdminCourseEditor },
+      { path: "nguoi-dung", Component: AdminUsers },
+    ],
+  },
+  // Legacy / Direct Admin Routes (/quan-ly)
   {
     path: "/quan-ly",
     Component: function AdminLoginWrapper() {

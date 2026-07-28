@@ -15,9 +15,12 @@ export default function AdminLogin() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const isAdminDomain = typeof window !== 'undefined' && (window.location.hostname.startsWith('admin.') || import.meta.env.VITE_APP_MODE === 'admin');
+  const targetDashboard = isAdminDomain ? '/dashboard' : '/quan-ly/dashboard';
+
   useEffect(() => {
-    if (!authLoading && isAuthenticated) navigate("/quan-ly/dashboard", { replace: true });
-  }, [authLoading, isAuthenticated, navigate]);
+    if (!authLoading && isAuthenticated) navigate(targetDashboard, { replace: true });
+  }, [authLoading, isAuthenticated, navigate, targetDashboard]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,7 +28,7 @@ export default function AdminLogin() {
     setLoading(true);
     try {
       await login(form.email, form.password);
-      navigate("/quan-ly/dashboard");
+      navigate(targetDashboard);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Đăng nhập thất bại";
       setError(message);

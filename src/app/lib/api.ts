@@ -260,13 +260,19 @@ export const userApi = {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) throw new Error('Not authenticated');
     
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseUrl =
+      import.meta.env.VITE_SUPABASE_URL ||
+      "https://uxfynvdyginufrsvkzmb.supabase.co";
+    const supabaseAnonKey =
+      import.meta.env.VITE_SUPABASE_ANON_KEY ||
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV4ZnludmR5Z2ludWZyc3Zrem1iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg5NTcyMDcsImV4cCI6MjA2NDUzMzIwN30.R_XW7FvL3796N6p75Ww5Gg3iZ4xH4wS0-kQz6u6v3Yg";
+
     const res = await fetch(`${supabaseUrl}/functions/v1/admin-users${path}`, {
       method,
       headers: {
         'Authorization': `Bearer ${session.access_token}`,
         'Content-Type': 'application/json',
-        'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+        'apikey': supabaseAnonKey,
       },
       body: body ? JSON.stringify(body) : undefined,
     });
