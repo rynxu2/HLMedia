@@ -45,7 +45,7 @@ export default function AdminLayout() {
     );
   }
 
-  const loginPath = prefix || "/quan-ly";
+  const loginPath = isAdminDomain ? "/login" : "/quan-ly";
 
   if (!isAuthenticated) {
     return <Navigate to={loginPath} replace />;

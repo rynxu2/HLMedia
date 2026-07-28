@@ -46,7 +46,7 @@ function AdminRootRedirect() {
       import.meta.env.VITE_APP_MODE === "admin";
 
     if (isAdminHost) {
-      return React.createElement(Navigate, { to: "/dashboard", replace: true });
+      return React.createElement(Navigate, { to: "/login", replace: true });
     }
   }
   return React.createElement(Home);
@@ -66,6 +66,13 @@ export const router = createBrowserRouter([
       { path: "lien-he", Component: ContactPage },
       { path: "gioi-thieu", Component: AboutPage },
     ],
+  },
+  // Clean Admin Login Route
+  {
+    path: "/login",
+    Component: function CleanAdminLoginWrapper() {
+      return React.createElement(AdminRedirectGuard, null, React.createElement(AdminLogin));
+    },
   },
   // Clean Admin Domain Root Layout & Subpaths
   {
