@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /quan-ly/
+
+Sitemap: https://hlmedia.vn/sitemap.xml

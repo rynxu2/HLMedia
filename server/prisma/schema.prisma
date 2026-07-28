@@ -1,0 +1,92 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  username     String    @unique
+  passwordHash String    @map("password_hash")
+  displayName  String    @map("display_name")
+  role         String    @default("admin")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  blogs        Blog[]
+  @@map("users")
+}
+
+model Lead {
+  id        Int       @id @default(autoincrement())
+  name      String
+  phone     String
+  service   String?
+  industry  String?
+  message   String?
+  source    String    @default("contact")
+  status    String    @default("new")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  @@index([status])
+  @@index([createdAt])
+  @@map("leads")
+}
+
+model Blog {
+  id            Int       @id @default(autoincrement())
+  slug          String    @unique
+  title         String
+  excerpt       String
+  content       String
+  category      String
+  categoryColor String    @default("#1877f2") @map("category_color")
+  tags          String[]  @default([])
+  image         String?
+  readTime      String?   @map("read_time")
+  status        String    @default("draft")
+  views         Int       @default(0)
+  authorId      Int       @map("author_id")
+  author        User      @relation(fields: [authorId], references: [id])
+  publishedAt   DateTime? @map("published_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  @@index([status])
+  @@index([category])
+  @@index([createdAt])
+  @@map("blogs")
+}
+
+model Course {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String
+  instructor  String
+  price       String    @default("")
+  priceValue  Int?      @map("price_value")
+  duration    String
+  lessons     Int       @default(0)
+  students    Int       @default(0)
+  rating      Float     @default(0)
+  status      String    @default("draft")
+  category    String
+  thumbnail   String?
+  studyMode   String    @default("Online & Offline") @map("study_mode")
+  highlight   Boolean   @default(false)
+  topics      String[]  @default([])
+  outcomes    String[]  @default([])
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  @@index([status])
+  @@index([category])
+  @@map("courses")
+}
+
+model Setting {
+  id    Int    @id @default(autoincrement())
+  key   String @unique
+  value String
+  @@map("settings")
+}
