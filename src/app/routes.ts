@@ -52,70 +52,74 @@ function AdminRootRedirect() {
   return React.createElement(Home);
 }
 
-export const router = createBrowserRouter([
-  // Public Site Routes (Client Domain)
-  {
-    path: "/",
-    Component: MainLayout,
-    children: [
-      { index: true, Component: AdminRootRedirect },
-      { path: "dich-vu/:slug", Component: ServiceDetail },
-      { path: "blog", Component: AllBlogs },
-      { path: "blog/:slug", Component: BlogDetail },
-      { path: "khoa-hoc", Component: AllCourses },
-      { path: "lien-he", Component: ContactPage },
-      { path: "gioi-thieu", Component: AboutPage },
-    ],
-  },
-  // Clean Admin Login Route
-  {
-    path: "/login",
-    Component: function CleanAdminLoginWrapper() {
-      return React.createElement(AdminRedirectGuard, null, React.createElement(AdminLogin));
-    },
-  },
-  // Clean Admin Domain Root Layout & Subpaths
-  {
-    path: "/",
-    Component: function CleanAdminWrapper() {
-      const isAdminHost = typeof window !== "undefined" && (window.location.hostname.startsWith("admin.") || import.meta.env.VITE_APP_MODE === "admin");
-      if (!isAdminHost) return null;
-      return React.createElement(AdminLayout);
-    },
-    children: [
-      { path: "dashboard", Component: AdminDashboard },
-      { path: "leads", Component: AdminLeads },
-      { path: "admin-blog", Component: AdminBlog },
-      { path: "admin-blog/create", Component: AdminBlogEditor },
-      { path: "admin-blog/edit/:id", Component: AdminBlogEditor },
-      { path: "admin-khoa-hoc", Component: AdminCourses },
-      { path: "admin-khoa-hoc/create", Component: AdminCourseEditor },
-      { path: "admin-khoa-hoc/edit/:id", Component: AdminCourseEditor },
-      { path: "nguoi-dung", Component: AdminUsers },
-    ],
-  },
-  // Legacy / Direct Admin Routes (/quan-ly)
-  {
-    path: "/quan-ly",
-    Component: function AdminLoginWrapper() {
-      return React.createElement(AdminRedirectGuard, null, React.createElement(AdminLogin));
-    },
-  },
-  {
-    path: "/quan-ly",
-    Component: function AdminLayoutWrapper() {
-      return React.createElement(AdminRedirectGuard, null, React.createElement(AdminLayout));
-    },
-    children: [
-      { path: "dashboard", Component: AdminDashboard },
-      { path: "leads", Component: AdminLeads },
-      { path: "blog", Component: AdminBlog },
-      { path: "blog/create", Component: AdminBlogEditor },
-      { path: "blog/edit/:id", Component: AdminBlogEditor },
-      { path: "khoa-hoc", Component: AdminCourses },
-      { path: "khoa-hoc/create", Component: AdminCourseEditor },
-      { path: "khoa-hoc/edit/:id", Component: AdminCourseEditor },
-      { path: "nguoi-dung", Component: AdminUsers },
-    ],
-  },
-]);
+const isAdminHost =
+  typeof window !== "undefined" &&
+  (window.location.hostname.startsWith("admin.") ||
+    import.meta.env.VITE_APP_MODE === "admin");
+
+export const router = createBrowserRouter(
+  isAdminHost
+    ? [
+        // 🛡️ ADMIN DOMAIN ROUTE TREE (admin.hlagency.com.vn)
+        {
+          path: "/login",
+          Component: function CleanAdminLoginWrapper() {
+            return React.createElement(AdminRedirectGuard, null, React.createElement(AdminLogin));
+          },
+        },
+        {
+          path: "/",
+          Component: function CleanAdminWrapper() {
+            return React.createElement(AdminLayout);
+          },
+          children: [
+            { index: true, Component: function RootRedirect() { return React.createElement(Navigate, { to: "/dashboard", replace: true }); } },
+            { path: "dashboard", Component: AdminDashboard },
+            { path: "leads", Component: AdminLeads },
+            { path: "blog", Component: AdminBlog },
+            { path: "blog/create", Component: AdminBlogEditor },
+            { path: "blog/edit/:id", Component: AdminBlogEditor },
+            { path: "khoa-hoc", Component: AdminCourses },
+            { path: "khoa-hoc/create", Component: AdminCourseEditor },
+            { path: "khoa-hoc/edit/:id", Component: AdminCourseEditor },
+            { path: "nguoi-dung", Component: AdminUsers },
+          ],
+        },
+        // Fallback / Redirect for any legacy /quan-ly route
+        {
+          path: "/quan-ly/*",
+          Component: function LegacyAdminRedirect() {
+            return React.createElement(Navigate, { to: "/dashboard", replace: true });
+          },
+        },
+      ]
+    : [
+        // 🌐 CLIENT DOMAIN ROUTE TREE (hlagency.com.vn)
+        {
+          path: "/",
+          Component: MainLayout,
+          children: [
+            { index: true, Component: Home },
+            { path: "dich-vu/:slug", Component: ServiceDetail },
+            { path: "blog", Component: AllBlogs },
+            { path: "blog/:slug", Component: BlogDetail },
+            { path: "khoa-hoc", Component: AllCourses },
+            { path: "lien-he", Component: ContactPage },
+            { path: "gioi-thieu", Component: AboutPage },
+          ],
+        },
+        // If client user accesses /quan-ly or /login on hlagency.com.vn -> redirect to admin domain
+        {
+          path: "/quan-ly/*",
+          Component: function ClientToAdminRedirect() {
+            return React.createElement(AdminRedirectGuard, null, React.createElement(AdminLogin));
+          },
+        },
+        {
+          path: "/login",
+          Component: function ClientToAdminLoginRedirect() {
+            return React.createElement(AdminRedirectGuard, null, React.createElement(AdminLogin));
+          },
+        },
+      ]
+);
